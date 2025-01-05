@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUESS THE ANIMALS GAME</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .game-container {
+            margin: 20px auto;
+            max-width: 500px;
+            width: 90%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+        }
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #333;
+        }
+        .animal-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .animal-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 150px;
+        }
+        .animal-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+            object-fit: contain;
+            border: 2px solid #ccc;
+            cursor: pointer;
+            margin-bottom: 10px;
+            background-color: #f8f8f8;
+        }
+        .feedback {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        .score {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>GUESS THE ANIMALS GAME</h1>
+
+    <div class="score" id="score">Score: 0</div>
+
+    <div class="question" id="question"></div>
+
+    <div class="animal-container" id="animalContainer"></div>
+
+    <div class="feedback" id="feedback">
+        Choose the correct animal!
+    </div>
+
+    <button onclick="resetGame()">Restart Game</button>
+</div>
+
+<script>
+    const animals = [
+        { name: 'dog', image: 'dog.png', sound: 'sounds/audio_dog.mp3' },
+        { name: 'Fox', image: 'Fox.jpg', sound: 'sounds/audio_Fox.mp3' },
+        { name: 'cow', image: 'Cow.png', sound: 'sounds/audio_cow.mp3' },
+        { name: 'horse', image: 'Horse.jpg', sound: 'sounds/audio_horse.mp3' },
+        { name: 'goat', image: 'goat.jpg', sound: 'sounds/audio_goat.mp3' },
+        { name: 'sheep', image: 'Sheep.png', sound: 'sounds/audio_sheep.mp3' },
+        { name: 'pig', image: 'Pig.jpg', sound: 'sounds/audio_pig.mp3' },
+        { name: 'cat', image: 'cat.webp', sound: 'sounds/audio_cat.mp3' },
+        { name: 'lion', image: 'Lion.png', sound: 'sounds/audio_lion.mp3' },
+        { name: 'tiger', image: 'Tiger.png', sound: 'sounds/audio_tiger.mp3' },
+        { name: 'elephant', image: 'Elephant.png', sound: 'sounds/audio_elephant.mp3' },
+        { name: 'monkey', image: 'Monkey.png', sound: 'sounds/audio_monkey.mp3' },
+        { name: 'Crocodile', image: 'Crocodile.jpg', sound: 'sounds/audio_crocodile.mp3' },
+        { name: 'deer', image: 'deer.png', sound: 'sounds/audio_deer.mp3' },
+        { name: 'wolf', image: 'wolf.jpg', sound: 'sounds/audio_wolf.mp3' },
+        { name: 'hyena', image: 'hyena.png', sound: 'sounds/audio_hyena.mp3' },
+        { name: 'cheetah', image: 'cheetah.png', sound: 'sounds/audio_cheetah.mp3' },
+        { name: 'giraffe', image: 'Giraffe.png', sound: 'sounds/audio_giraffe.mp3' },
+        { name: 'zebra', image: 'zebra.png', sound: 'sounds/audio_zebra.mp3' },
+        { name: 'rhino', image: 'rhino.jpg', sound: 'sounds/audio_rhino.mp3' },
+        { name: 'hippopotamus', image: 'Hippo.png', sound: 'sounds/audio_hippopotamus.mp3' },
+        { name: 'frog', image: 'Frog.png', sound: 'sounds/audio_frog.mp3' },
+        { name: 'donkey', image: 'Donkey.png', sound: 'sounds/audio_donkey.mp3' },
+        { name: 'panda', image: 'panda.jpg', sound: 'sounds/audio_panda.mp3' },
+        { name: 'camel', image: 'camel.png', sound: 'sounds/audio_camel.mp3' },
+        { name: 'turtle', image: 'turtle.png', sound: 'sounds/audio_turtle.mp3' },
+        { name: 'bear', image: 'bear.png', sound: 'sounds/audio_bear.mp3' },
+        { name: 'rabbit', image: 'rabbit.png', sound: 'sounds/audio_rabbit.mp3' },
+        { name: 'rat', image: 'rat.jpg', sound: 'sounds/audio_rat.mp3' },
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    function updateScore() {
+        document.getElementById('score').textContent = `Score: ${score}`;
+    }
+
+    function displayQuestion() {
+        const questionElement = document.getElementById('question');
+        const animalContainer = document.getElementById('animalContainer');
+        const feedback = document.getElementById('feedback');
+
+        feedback.textContent = "Choose the correct animal!";
+        feedback.style.color = "#333";
+        animalContainer.innerHTML = "";
+
+        const correctAnimal = animals[currentQuestion];
+        questionElement.textContent = `Select the ${correctAnimal.name.charAt(0).toUpperCase() + correctAnimal.name.slice(1)}.`;
+
+        const shuffledAnimals = [...animals].sort(() => 0.5 - Math.random());
+        const options = [correctAnimal, shuffledAnimals.find(a => a.name !== correctAnimal.name)];
+        options.sort(() => 0.5 - Math.random());
+
+        options.forEach(animal => {
+            const animalItem = document.createElement('div');
+            animalItem.className = 'animal-item';
+
+            const img = document.createElement('img');
+            img.src = animal.image;
+            img.alt = animal.name;
+            img.className = 'animal-image';
+            img.onclick = () => checkAnswer(animal.name);
+
+            const soundButton = document.createElement('button');
+            soundButton.textContent = `Play Sound`;
+            soundButton.onclick = () => playSound(animal.sound);
+
+            animalItem.appendChild(img);
+            animalItem.appendChild(soundButton);
+            animalContainer.appendChild(animalItem);
+        });
+    }
+
+    function playSound(soundFile) {
+        const audio = new Audio(soundFile);
+        audio.play();
+    }
+
+    function checkAnswer(selected) {
+        const feedback = document.getElementById('feedback');
+        const correctAnimal = animals[currentQuestion].name;
+
+        if (selected === correctAnimal) {
+            feedback.textContent = "Correct! Moving to the next question.";
+            feedback.style.color = "green";
+            score++;
+        } else {
+            feedback.textContent = "Incorrect! Moving to the next question.";
+            feedback.style.color = "red";
+        }
+
+        updateScore();
+
+        currentQuestion++;
+        if (currentQuestion < animals.length) {
+            setTimeout(displayQuestion, 1000);
+        } else {
+            feedback.textContent = "Game Over! You've completed the game.";
+        }
+    }
+
+    function resetGame() {
+        currentQuestion = 0;
+        score = 0;
+        updateScore();
+        displayQuestion();
+    }
+
+    displayQuestion();
+</script>
+
+</body>
+</html>
